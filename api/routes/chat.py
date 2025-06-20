@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 from dotenv import load_dotenv
 import os
 
@@ -24,7 +24,7 @@ async def chat_with_openai(user_input: str = Body(..., embed=True)) -> str:
     """
     Generate a response using OpenAI via LangChain.
     """
-    user_input = request.message
+
     system_prompt = """
        you are intent recognizer
     """

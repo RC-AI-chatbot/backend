@@ -4,6 +4,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 
 app = FastAPI()
+
+from api.router import api_router  # <-- Add this line
+
+app.include_router(api_router)  
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 html = f"""
