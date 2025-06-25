@@ -2,6 +2,8 @@ from time import time
 from fastapi import FastAPI, __version__
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
+from apscheduler.schedulers.background import BackgroundScheduler
+import requests
 
 app = FastAPI()
 
@@ -30,6 +32,24 @@ html = f"""
     </body>
 </html>
 """
+
+def sync_typesense_job():
+    # Adjust the URL if needed
+    url = "http://localhost:8000/typesense/sync_feeddata"
+    try:
+        response = requests.post(url)
+        print("Sync job status:", response.status_code)
+    except Exception as e:
+        print("Sync job failed:", e)
+
+def start_scheduler():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(sync_typesense_job, 'interval', hours=5)
+    scheduler.start()
+
+@app.on_event("startup")
+def startup_event():
+    start_scheduler()
 
 @app.get("/")
 async def root():
