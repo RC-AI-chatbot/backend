@@ -2,6 +2,7 @@ from fastapi import APIRouter, Body
 from dotenv import load_dotenv
 from pydantic import BaseModel
 import os
+import re
 import typesense
 
 from langchain_openai import ChatOpenAI
@@ -64,6 +65,10 @@ gemini_llm = ChatGoogleGenerativeAI(
 class ChatRequest(BaseModel):
     user_input: str
     history: str
+
+def replace_car_with_truck(text):
+    # Replace 'car' with 'truck', case-insensitive, word-boundary
+    return re.sub(r'\bcar\b', 'truck', text, flags=re.IGNORECASE)
 
 @router.post("/chat_with_openai", response_model=str)
 async def chat_with_openai(user_input: str = Body(..., embed=True)) -> str:
@@ -214,16 +219,23 @@ async def chat_with_ai(request: ChatRequest):
     """
     AI chat using Typesense as retrieval backend (RAG style).
     """
-    user_input = request.user_input
+    user_input = request.user_input.replace("car", "truck")
+    print(user_input)
     history = request.history
     # Detect user's input as keyword
     detect_system_prompt = INTENT_DETECTION_SYSTEM_PROMPT
 
-    # Compose the prompt for the LLM
-    detect_prompt = f"{detect_system_prompt}\n\nUser input: {user_input}\nIntent:"
+    detect_system_prompt = [
+        (
+            "system",
+            INTENT_DETECTION_SYSTEM_PROMPT,
+        ),
+        ("human", f'User Input: {user_input} Chat History: {history}'),
+    ]
 
     # Get LLM response as keyword
     keyword_response = openai_llm.invoke(detect_system_prompt)
+
     keyword = keyword_response.content.strip() if hasattr(keyword_response, "content") else str(keyword_response)
     
     print("Keyword: ", keyword)
@@ -269,10 +281,12 @@ async def chat_with_ai(request: ChatRequest):
             Product listing rules:
                 Show only 3 products (unique parent_sku) unless the user asks to see more. Never show more than 5 products.
                 Always format product results in a user-friendly list, including: Product Name, Short Description (if available), Price, and a short note on why it’s recommended for the query.
+                I think you are using markdown format, so using this format: ![Alt text[(image_url) such as markdown format,size of the image by 50% to 75%. return image.
                 If relevant, group products by category (e.g., “Wheels”, “Motors”, “Body Shells”) before listing.
             If you cannot find relevant products, explain why and provide helpful suggestions or alternatives.
             For technical, compatibility, or installation questions, provide a concise, factual answer based only on the data. If you can list compatible products or parts, do so.
             Do not list products outside of the given context or product categories.
+            Truck, buggy etc is same meaning as car.
             Never recommend slot cars, HO slot cars, or airplanes if the question is about RC cars or trucks.
             If the user’s request cannot be fulfilled (e.g., no products under $100), clearly state this and suggest the closest available alternative.
             If the user asks for information only (not products), provide a clear, accurate, and concise answer.
@@ -359,8 +373,34 @@ async def chat_with_ai(request: ChatRequest):
         # 3. Get LLM response
         
         return response.content
+    elif keyword == "greeting":
+        prompt_order = f"""
+            You are RC ruddy Assistant from RCsuperstore, say greeting words and ask user name and email address kindly. 
+            if user provide only his name, ask email address again kindly
+            User response: {user_input}
+            History: {history}
+            Your response:
+        """
+
+        response = openai_llm.invoke(prompt_order)
+
+        print(response.content)
+        return response.content
+    elif keyword == "feedback":
+        prompt_order = f"""
+            You are RC ruddy Assistant from RCsuperstore, user gave you feedback for this platform or chatbot and say to user thank you for your feedback. and keep going.
+            User feedback: {user_input}
+            History: {history}
+            Your response:
+        """
+
+        response = openai_llm.invoke(prompt_order)
+
+        print(response.content)
+        return response.content
     else:
         return "I cound not understand your request."
+
 @router.post("/intent_detection", response_model=str)
 async def intent_detection(user_input: str = Body(..., embed=True)) -> str:
     """
