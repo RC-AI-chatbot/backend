@@ -9,8 +9,10 @@ INTENT_DETECTION_SYSTEM_PROMPT = """
 
     Definitions:
     - greeting:
-        This is the first step in a conversation. when user provide his name or email address. if done, go to next step.
-        Note: we should get username and email address both of them. so if we not get at least of one, return again. 
+        Before providing the first reponse, you should ask for name and email address.
+        This is the first step in a conversation. when user provide his name or email address for greeting, not getting for order status. if done, go to next step.
+        Note: This conversation should work only one time so check the conversation history.
+              If the user does not respond with his/her name and email throughout the conversation, all requests from the user will be rejected and we should ask name and email address again. so return greeting.
     - product:
         The user is searching for, requesting, or asking about products, product lists, recommendations, availability, or comparisons.
         Examples:
