@@ -61,7 +61,7 @@ openai_llm = ChatOpenAI(
     model=OPENAI_MODEL_NAME,
     temperature=0,
     max_tokens=None,
-    timeout=None,
+    timeout=1000,
     max_retries=2,
     api_key=OPENAI_API_KEY,
 )
@@ -274,7 +274,7 @@ async def chat_with_ai(request: ChatRequest):
             search_parameters = {
                 "q": user_input,
                 "query_by": "title,description,brand,sku,product_category_deprecated,price,price_range,sale_price",
-                "per_page": 5
+                "per_page": 20
             }
             try:
                 search_results = client.collections['slot_cars'].documents.search(search_parameters)
@@ -289,7 +289,25 @@ async def chat_with_ai(request: ChatRequest):
                         f"Brand: {hit['document'].get('brand', '')}\n"
                         f"Price: {hit['document'].get('price', '')}\n"
                         f"Link: {hit['document'].get('link', '')}\n"
-                        f"Link: {hit['document'].get('image_link', '')}"
+                        f"Image Link: {hit['document'].get('image_link', '')}\n"
+                        f"SKU: {hit['document'].get('sku', '')}\n"
+                        f"Parent SKU: {hit['document'].get('parent_sku', '')}\n"
+                        f"mpn: {hit['document'].get('mpn', '')}\n"
+                        f"availability: {hit['document'].get('availability', '')}\n"
+                        f"product_category_deprecated: {hit['document'].get('product_category_deprecated', '')}\n"
+                        f"model_type: {hit['document'].get('model_type', '')}\n"
+                        f"model_skill_level: {hit['document'].get('model_skill_level', '')}\n"
+                        f"model_speed: {hit['document'].get('model_speed', '')}\n"
+                        f"color: {hit['document'].get('color', '')}\n"
+                        f"price: {hit['document'].get('price', '')}\n"
+                        f"sale_price: {hit['document'].get('sale_price', '')}\n"
+                        f"price_range: {hit['document'].get('price_range', '')}\n"
+                        f"shipping_weight: {hit['document'].get('shipping_weight', '')}\n"
+                        f"date_created: {hit['document'].get('model_date_createdspeed', '')}\n"
+                        f"model_speed: {hit['document'].get('model_speed', '')}\n"
+                        f"view_count: {hit['document'].get('view_count', '')}\n"
+                        f"total_sold: {hit['document'].get('total_sold', '')}\n"
+                        f"compatible_parts: {hit['document'].get('compatible_parts', '')}"
                         for hit in hits
                     )
             except Exception as e:

@@ -1,6 +1,7 @@
 import typesense
 import json
 import os
+import re
 import requests
 import psycopg2
 from fastapi import APIRouter, Body
@@ -96,6 +97,30 @@ async def sync_data_from_bigcommerce() -> str:
         product['model_skill_level'] = str(product.get('model_skill_level', ''))
         product['gtin'] = str(product.get('gtin', ''))
         product['total_sold'] = str(product.get('total_sold', ''))
+
+        product['description'] = str(product.get('description', '')) 
+        product['price_range'] = str(product.get('price_range', ''))
+        price_str = str(product.get('price', '0'))
+        match = re.search(r'(\d+(\.\d+)?)', price_str)
+        try:
+            price = float(match.group(1))
+            print("----------->",price)
+            if price < 100:
+                price_note = "price is below $100"
+            elif price < 200:
+                price_note = "price is below $200"
+            elif price < 300:
+                price_note = "price is below $300"
+            elif price < 500:
+                price_note = "price is below $500"
+            elif price < 1000:
+                price_note = "price is below $1000"
+            else:
+                price_note = ""
+            if price_note:
+                product['description'] += f" {price_note} and price scope is {product['price_range']}"
+        except Exception:
+            pass
 
         for field in schema_fields:
             value = product.get(field)
