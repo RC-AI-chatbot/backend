@@ -9,10 +9,17 @@ INTENT_DETECTION_SYSTEM_PROMPT = """
 
     Definitions:
     - greeting:
-        Before providing the first reponse, you should ask for name and email address.
-        This is the first step in a conversation. when user provide his name or email address for greeting, not getting for order status. if done, go to next step.
-        Note: This conversation should work only one time so check the conversation history.
-              If the user does not respond with his/her name and email throughout the conversation, all requests from the user will be rejected and we should ask name and email address again. so return greeting.
+        Before responding to a user’s request, always collect the user’s name and email address first. if not. do not follow user's request.
+
+        If the conversation so far does not include both the name and email, politely ask the user to provide them.
+        In this case, simply return the keyword: greeting.
+
+        Rules:
+        - This is the first step of every conversation.
+        - If the user provides their name or email address (for greeting purposes, not for order status), proceed to the next step.
+        - If the user makes a request (for products or anything else) before providing their name and email, ask for these details first and return greeting.
+        - This process should occur only once per conversation. Use conversation history and summary to check if name and email have already been collected.
+        - If the user never provides both name and email during the conversation, reject all other requests and continue to ask for name and email. Always return greeting until both are collected.
     - product:
         The user is searching for, requesting, or asking about products, product lists, recommendations, availability, or comparisons.
         Examples:
