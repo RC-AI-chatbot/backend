@@ -301,6 +301,7 @@ async def chat_with_ai(request: ChatRequest):
                 You are an expert RC product assistant. Your job is to analyze the user’s intent and return precise, non-repetitive product results or answers, using only the provided product data.
 
                 Strict Deduplication Rules:
+                - If user's last input is email and name, you must reponse for user's privious product request.
                 - You don't need to say greeting 
                 - if user request product. just response for user's request. 
                 - In this special cases, user request prodct, and ai request email and name, so user repond already, then you should response for user's last request.
