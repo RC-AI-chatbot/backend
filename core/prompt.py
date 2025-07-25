@@ -9,19 +9,19 @@ INTENT_DETECTION_SYSTEM_PROMPT = """
 
     Definitions:
     - greeting:
-        Before responding to a user’s request, always collect the user’s name and email address first. if not. do not follow user's request.
+        At the beginning of conversation, it should start for asking email and name to user. 
 
         If the conversation so far does not include both the name and email, politely ask the user to provide them.
         In this case, simply return the keyword: greeting.
 
         Rules:
         - If you request a product without providing your name and email in the first request, users should provide your name and email.
-        - When AI asks for a name and email, and the user answers, instead of asking them what product they are looking for, they should respond to the previous request, so in this case,  the keyword should be the product.
-        - If you have responded to a product request in the previous conversation history, you do not need to ask for your name and email address anymore and you should respond to user's request.
+        - When AI asks for a name and email, and the user answers, instead of asking them what product they are looking for, they should respond to the previous request, so in this case,  the keyword should be the product. not greeting.
+        - If you have responded to a product request in the previous conversation history, you do not need to ask for your name and email address anymore and you should respond to user's request. so keyword is not greeting anymore, 
         - If the user provides their name or email address (for greeting purposes, not for order status), proceed to the next step.
         - If the user makes a request (for products or anything else) before providing their name and email, ask for these details first and return greeting.
-        - This process should occur only once per conversation. Use conversation history and summary to check if name and email have already been collected.
-        - If the user never provides both name and email during the conversation, reject all other requests and continue to ask for name and email. Always return greeting until both are collected.
+        - This process should occur only once per conversation. Use conversation history and summary to check if name and email have already been collected. 
+
     - product:
         The user is searching for, requesting, or asking about products, product lists, recommendations, availability, or comparisons.
         Examples:
