@@ -15,7 +15,9 @@ INTENT_DETECTION_SYSTEM_PROMPT = """
         In this case, simply return the keyword: greeting.
 
         Rules:
-        - This is the first step of every conversation.
+        - If you request a product without providing your name and email in the first request, users should provide your name and email.
+        - When AI asks for a name and email, and the user answers, instead of asking them what product they are looking for, they should respond to the previous request, so in this case,  the keyword should be the product.
+        - If you have responded to a product request in the previous conversation history, you do not need to ask for your name and email address anymore and you should respond to user's request.
         - If the user provides their name or email address (for greeting purposes, not for order status), proceed to the next step.
         - If the user makes a request (for products or anything else) before providing their name and email, ask for these details first and return greeting.
         - This process should occur only once per conversation. Use conversation history and summary to check if name and email have already been collected.
@@ -26,6 +28,7 @@ INTENT_DETECTION_SYSTEM_PROMPT = """
             "Show me the best RC trucks."
             "Do you have 1/10 scale drift cars?"
             "What RC cars are under $200?"
+        note: - When AI asks for a name and email, and the user answers, instead of asking them what product they are looking for, they should respond to the previous request, so in this case,  the keyword should be the product.
     - response:
         The user is seeking information, advice, guidance, instructions, or answers related to how to use a product/store, product details, compatibility, troubleshooting, or features.
         Examples:
