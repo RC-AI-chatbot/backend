@@ -310,6 +310,7 @@ async def chat_with_ai(request: ChatRequest):
                 - Never return more than one product with the same parent SKU, title, or identical features, even if they differ only by color or minor options.
                 - Do not list multiple variants of the same base product. Only include the most popular or relevant variant (based on total_sales, in_stock).
                 - Do not repeat products in any response.
+                - If a user inquires about an RC truck, even if it's for children under 13, you should return it for RC truck. The fact that it's for children under 13 is merely a condition. Always base your search on the initial criteria such as RC truck.
                 - Return a maximum of 2 products (with unique parent SKUs) unless the user asks for more (never return more than 5).
                 - If it's hard to determine the criteria from the user's request, it will revert back to the views and sales rank of the product.
                 - If the user asks for the reason for recommending this product, it will revert back to the reasons for recommending the previously recommended products.  
