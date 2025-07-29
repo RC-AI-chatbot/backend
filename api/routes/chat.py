@@ -24,6 +24,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from pinecone import Pinecone
 
 from core.prompt import INTENT_DETECTION_SYSTEM_PROMPT
+from core.database import store_message, get_conversation_history
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -87,7 +88,7 @@ gemini_llm = ChatGoogleGenerativeAI(
 
 class ChatRequest(BaseModel):
     user_input: str
-    history: str
+    history: str = ""  # Made optional since we now get history from database
 #    summary: str
     conversationId: str
 
@@ -246,10 +247,15 @@ async def chat_with_ai(request: ChatRequest):
         start_time = time.time()
         user_input = request.user_input
         print(user_input)
-        history = request.history # + f"\nSummary: {request.summary}"
-        print("History:", history)
         conversationId = request.conversationId
-        
+
+        # Store user message in database
+        store_message(conversationId, "user", user_input)
+
+        # Get conversation history from database instead of client
+        history = get_conversation_history(conversationId)
+        print("History from DB:", history)
+
         print(f"Request processing started at: {start_time}")
 
         detect_openai_llm = ChatOpenAI(
@@ -422,11 +428,14 @@ async def chat_with_ai(request: ChatRequest):
             #     for key in chunk:
             #         if key == "answer":
             #             all_content += chunk[key]
-            if "answer" in response: 
+            if "answer" in response:
                 all_content = response["answer"]
-                
+
             print("AI response: ",all_content)
-                
+
+            # Store bot response in database
+            store_message(conversationId, "bot", all_content)
+
             stream_end = time.time()
             print(f"Stream generation took: {stream_end - stream_start:.2f} seconds")
 
@@ -435,10 +444,10 @@ async def chat_with_ai(request: ChatRequest):
             await send_chunk_to_botpress(all_content, conversationId)
             botpress_end = time.time()
             print(f"Botpress sending took: {botpress_end - botpress_start:.2f} seconds")
-            
+
             product_end = time.time()
             print(f"Total product/response handling took: {product_end - product_start:.2f} seconds")
-            
+
             yield all_content
         elif keyword == "refuse":
             refuse_start = time.time()
@@ -478,7 +487,10 @@ async def chat_with_ai(request: ChatRequest):
                 yield text
             llm_end = time.time()
             print(f"LLM streaming for refuse took: {llm_end - llm_start:.2f} seconds")
-            
+
+            # Store bot response in database
+            store_message(conversationId, "bot", buffer)
+
             botpress_start = time.time()
             await send_chunk_to_botpress(buffer, conversationId)
             botpress_end = time.time()
@@ -555,8 +567,13 @@ async def chat_with_ai(request: ChatRequest):
                     text = chunk.content if hasattr(chunk, "content") else str(chunk)
                     buffer += text
                     yield text
+
+                # Store bot response in database
+                store_message(conversationId, "bot", buffer)
                 await send_chunk_to_botpress(buffer, conversationId)
             except json.JSONDecodeError:
+                # Store bot response in database
+                store_message(conversationId, "bot", response_content)
                 await send_chunk_to_botpress(response_content, conversationId)
                 yield response_content
         elif keyword == "greeting":
@@ -573,6 +590,9 @@ async def chat_with_ai(request: ChatRequest):
                 text = chunk.content if hasattr(chunk, "content") else str(chunk)
                 buffer += text
                 yield text
+
+            # Store bot response in database
+            store_message(conversationId, "bot", buffer)
             await send_chunk_to_botpress(buffer, conversationId)
             greeting_end = time.time()
             print(f"Total greeting handling took: {greeting_end - greeting_start:.2f} seconds")
@@ -589,11 +609,17 @@ async def chat_with_ai(request: ChatRequest):
                 text = chunk.content if hasattr(chunk, "content") else str(chunk)
                 buffer += text
                 yield text
+
+            # Store bot response in database
+            store_message(conversationId, "bot", buffer)
             await send_chunk_to_botpress(buffer, conversationId)
             feedback_end = time.time()
             print(f"Total feedback handling took: {feedback_end - feedback_start:.2f} seconds")
         else:
-            yield "I cound not understand your request."
+            error_message = "I could not understand your request."
+            # Store bot response in database
+            store_message(conversationId, "bot", error_message)
+            yield error_message
     return StreamingResponse(ai_stream(), media_type="text/plain")
 
 def get_bigcommerce_order(order_id):
@@ -686,8 +712,14 @@ async def chat_with_ai(request: ChatRequest):
     async def ai_stream():
         user_input = request.user_input
         print(user_input)
-        history = request.history
         conversationId = request.conversationId
+
+        # Store user message in database
+        store_message(conversationId, "user", user_input)
+
+        # Get conversation history from database instead of client
+        history = get_conversation_history(conversationId)
+        print("History from DB:", history)
         # Detect user's input as keyword
         detect_system_prompt = INTENT_DETECTION_SYSTEM_PROMPT
 
@@ -827,6 +859,8 @@ async def chat_with_ai(request: ChatRequest):
                         all_content += chunk[key]
                         print(chunk[key])
 
+            # Store bot response in database
+            store_message(conversationId, "bot", all_content)
             await send_chunk_to_botpress(all_content, conversationId)
         elif keyword == "refuse":
             prompt_refuse = f"""
@@ -862,6 +896,9 @@ async def chat_with_ai(request: ChatRequest):
                 text = chunk.content if hasattr(chunk, "content") else str(chunk)
                 buffer += text
                 yield text
+
+            # Store bot response in database
+            store_message(conversationId, "bot", buffer)
             await send_chunk_to_botpress(buffer, conversationId)
         elif keyword == "order":
             prompt_order = f"""
@@ -931,8 +968,13 @@ async def chat_with_ai(request: ChatRequest):
                     text = chunk.content if hasattr(chunk, "content") else str(chunk)
                     buffer += text
                     yield text
+
+                # Store bot response in database
+                store_message(conversationId, "bot", buffer)
                 await send_chunk_to_botpress(buffer, conversationId)
             except json.JSONDecodeError:
+                # Store bot response in database
+                store_message(conversationId, "bot", response_content)
                 await send_chunk_to_botpress(response_content, conversationId)
                 yield response_content
         elif keyword == "greeting":
@@ -948,6 +990,9 @@ async def chat_with_ai(request: ChatRequest):
                 text = chunk.content if hasattr(chunk, "content") else str(chunk)
                 buffer += text
                 yield text
+
+            # Store bot response in database
+            store_message(conversationId, "bot", buffer)
             await send_chunk_to_botpress(buffer, conversationId)
         elif keyword == "feedback":
             prompt_feedback = f"""
@@ -961,7 +1006,13 @@ async def chat_with_ai(request: ChatRequest):
                 text = chunk.content if hasattr(chunk, "content") else str(chunk)
                 buffer += text
                 yield text
+
+            # Store bot response in database
+            store_message(conversationId, "bot", buffer)
             await send_chunk_to_botpress(buffer, conversationId)
         else:
-            yield "I cound not understand your request."
+            error_message = "I could not understand your request."
+            # Store bot response in database
+            store_message(conversationId, "bot", error_message)
+            yield error_message
     return StreamingResponse(ai_stream(), media_type="text/plain")
