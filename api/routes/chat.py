@@ -279,6 +279,7 @@ async def chat_with_ai(request: ChatRequest):
             product_start = time.time()
             user_input.replace("1000", "700~1000")
             user_input.replace("500", "300~500")
+            user_input = f'User Input: {user_input} Chat History: {history}'
             
             # Vector store setup
             vector_setup_start = time.time()
@@ -308,6 +309,7 @@ async def chat_with_ai(request: ChatRequest):
                 - In this special cases, user request prodct, and ai request email and name, so user repond already, then you should response for user's last request.
                 - When AI asks for a name and email, and the user answers, instead of asking them what product they are looking for, they should respond to the previous request, so in this case,  the keyword should be the product. so you should response for user's last request before providing name and email.
                 - If you have responded to a product request in the previous conversation history, you do not need to ask for your name and email address anymore and you should respond to user's request.
+                - You can find what user request previous from history, even there is no user's request in history, you can find in bot's last response what user requested.
                 - Never return more than one product with the same parent SKU, title, or identical features, even if they differ only by color or minor options.
                 - Do not list multiple variants of the same base product. Only include the most popular or relevant variant (based on total_sales, in_stock).
                 - Do not repeat products in any response.
