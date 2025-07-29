@@ -15,6 +15,7 @@ INTENT_DETECTION_SYSTEM_PROMPT = """
         In this case, simply return the keyword: greeting.
 
         Rules:
+        - If user request at first time, keyword must be greeting, even user request product. 
         - User's last input is email and name, then never repeat as greeting keyword. next must be product. 
         - Last conversation is about product, then do not return greeting. just keep for product.
         - If you request a product without providing your name and email in the first request, users should provide your name and email.

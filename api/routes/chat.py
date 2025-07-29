@@ -304,7 +304,7 @@ async def chat_with_ai(request: ChatRequest):
 
                 Strict Deduplication Rules:
                 - If user's last input is email and name, you must reponse for user's privious product request.
-                - You don't need to say greeting 
+                - You don't need to say greeting only if user request at first time, you should ask name and email. only this case!
                 - if user request product. just response for user's request. 
                 - In this special cases, user request prodct, and ai request email and name, so user repond already, then you should response for user's last request.
                 - When AI asks for a name and email, and the user answers, instead of asking them what product they are looking for, they should respond to the previous request, so in this case,  the keyword should be the product. so you should response for user's last request before providing name and email.
