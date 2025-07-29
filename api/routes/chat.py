@@ -247,6 +247,7 @@ async def chat_with_ai(request: ChatRequest):
         user_input = request.user_input
         print(user_input)
         history = request.history # + f"\nSummary: {request.summary}"
+        print("History:", history)
         conversationId = request.conversationId
         
         print(f"Request processing started at: {start_time}")
