@@ -424,6 +424,8 @@ async def chat_with_ai(request: ChatRequest):
             if "answer" in response: 
                 all_content = response["answer"]
                 
+            print("AI response: ",all_content)
+                
             stream_end = time.time()
             print(f"Stream generation took: {stream_end - stream_start:.2f} seconds")
 
