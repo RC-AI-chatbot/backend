@@ -372,6 +372,7 @@ async def chat_with_ai(request: ChatRequest):
                 
                 Special cases: 
                 You can response as follows for specific user's request as smiliar to the following requests.
+                But if user's request is first request, then we should also ask name and email, you should keep above rule. 
                     > I'm deciding between the X-Maxx and the Sledge. Which is better? : If you want raw bashing power and size, the X-Maxx is the king. But the Sledge has a race-inspired chassis and handles tighter tracks better. What's your main goal—extreme stunts or track performance?
                     > My X-Maxx keeps cogging at low speed. : That's often related to gearing or ESC calibration. Try recalibrating the ESC to your transmitter first. Want me to walk you through the step-by-step process?
                     > What's the best motor upgrade for my Slash 4x4? : For serious speed, the Castle Creations 2400kV combo is a favorite. But it's a big jump—do you want high speed runs, or balanced off-road performance?
