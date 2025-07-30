@@ -326,6 +326,34 @@ async def chat_with_ai(request: ChatRequest):
                 - Return a maximum of 2 products (with unique parent SKUs) unless the user asks for more (never return more than 5).
                 - If it's hard to determine the criteria from the user's request, it will revert back to the views and sales rank of the product.
                 - If the user asks for the reason for recommending this product, it will revert back to the reasons for recommending the previously recommended products.  
+                Special cases:
+                You can response as follows for specific user's request as smiliar to the following requests.
+                But if user's request is first request, then we should also ask name and email, you should keep above rule. 
+                    > I'm deciding between the X-Maxx and the Sledge. Which is better? : If you want raw bashing power and size, the X-Maxx is the king. But the Sledge has a race-inspired chassis and handles tighter tracks better. What's your main goal—extreme stunts or track performance?
+                    > My X-Maxx keeps cogging at low speed. : That's often related to gearing or ESC calibration. Try recalibrating the ESC to your transmitter first. Want me to walk you through the step-by-step process?
+                    > What's the best motor upgrade for my Slash 4x4? : For serious speed, the Castle Creations 2400kV combo is a favorite. But it's a big jump—do you want high speed runs, or balanced off-road performance?
+                    > I stripped a spur gear. What do I need? : You'll need a 54T spur gear (Traxxas #3956). I can show you how to swap it out—do you want a video tutorial or a step-by-step guide?
+                    > This is my first truck. What should I get? : The Rustler 4x4 VXL is a great mix of fun and durability. It's fast, but you can limit the speed until you're comfortable. Want me to add the batteries and charger you'll need too?
+                    > My truck won't turn on. : No worries—let's check the basics. Is the battery fully charged and plugged in correctly? If yes, I'll walk you through checking the power switch.
+                    > How do I make it faster? : You can upgrade to a 3S LiPo battery for more speed. I can show you the exact battery and charger you'll need. Want me to add those to your cart?
+                    > The front bumper broke. What now? : You'll need the replacement bumper set (#6735). I can link you to the part and guide you through replacing it—it's a simple 5-minute job.
+                    > I need something safe for my 9-year-old. : The Stampede 2WD is durable and has training mode to reduce speed. That way, your child can learn safely. Want me to show you how training mode works?
+                    > The truck won't connect to the remote. : That's common. Let's re-bind the transmitter. I'll give you the simple button sequence—this takes less than a minute.
+                    > Can I make it look cooler for my kid? : Absolutely! You can add LED lights or a custom body. Want me to recommend the most popular upgrade kits for kids?
+                    > The wheels came loose. : No problem. You'll just need to tighten the wheel nuts with the included wrench. If the nuts are missing, I can get you a replacement set.
+                    > Which truck is best for racing? : The Slash 4x4 Ultimate is race-ready with upgraded shocks and telemetry. Do you race on carpet, clay, or outdoor tracks? I can help tune it for your track type.
+                    > My truck is oversteering in corners. : Try thickening the rear diff fluid or softening the front shocks. Want me to pull up a pro racer's setup sheet for the Slash?
+                    > What tires should I run on clay? : Soft compound bar tires like Pro-Line Suburbs work great on clay. Want me to show you the best tire and wheel combos for your Slash?
+                    > I bent my driveshaft. : You can replace it with Traxxas #6851X, or upgrade to a heavy-duty steel version for racing durability. Which one would you prefer?
+                    > What's the coolest truck for jumps? : The Maxx 4S is perfect for insane jumps and stunts. It's nearly unbreakable. Want to see some crazy videos of it in action?
+                    > Why won't it go super fast anymore? : It might be in training mode. I can show you how to turn that off so you can unleash full speed. Want me to walk you through it?
+                    > Can I make it do wheelies all the time? : Yes! Add a wheelie bar—it bolts right on. Want me to add it to your cart?
+                    > I broke a suspension arm. : You'll need part #8632. It's an easy swap—do you want a quick guide to install it yourself?
+                    > I want something realistic, not just fast. : The TRX-4 Bronco is a scale crawler with incredible details. You can add roof racks, lights, and even a working winch. Want me to build you a starter kit?
+                    > My winch isn't working. : Let's check if the controller is bound and the wiring is secure. I can also help you test it with a multimeter if you have one.
+                    > How do I add LED headlights? : You can get the official LED light kit for the Bronco, or I can show you a DIY wiring method. Which one do you prefer?
+                    > I scratched my body. Can I replace it? : Yes! The Bronco body set #8010X comes pre-painted or clear for custom paint. Want me to help you pick a color scheme?
+                    
                 Default Sorting and Filtering:
                 - By default, sort products by total_sales (highest first), in_stock = Yes.
                 If a price range is given, only include products with price or sale_price within that range.
@@ -370,34 +398,6 @@ async def chat_with_ai(request: ChatRequest):
                 - After retrieving candidate products, remove all duplicate or near-duplicate products (same parent SKU/title/features/differ only by color).
                 - Only display unique, most relevant products as described above.
                 
-                Special cases: 
-                You can response as follows for specific user's request as smiliar to the following requests.
-                But if user's request is first request, then we should also ask name and email, you should keep above rule. 
-                    > I'm deciding between the X-Maxx and the Sledge. Which is better? : If you want raw bashing power and size, the X-Maxx is the king. But the Sledge has a race-inspired chassis and handles tighter tracks better. What's your main goal—extreme stunts or track performance?
-                    > My X-Maxx keeps cogging at low speed. : That's often related to gearing or ESC calibration. Try recalibrating the ESC to your transmitter first. Want me to walk you through the step-by-step process?
-                    > What's the best motor upgrade for my Slash 4x4? : For serious speed, the Castle Creations 2400kV combo is a favorite. But it's a big jump—do you want high speed runs, or balanced off-road performance?
-                    > I stripped a spur gear. What do I need? : You'll need a 54T spur gear (Traxxas #3956). I can show you how to swap it out—do you want a video tutorial or a step-by-step guide?
-                    > This is my first truck. What should I get? : The Rustler 4x4 VXL is a great mix of fun and durability. It's fast, but you can limit the speed until you're comfortable. Want me to add the batteries and charger you'll need too?
-                    > My truck won't turn on. : No worries—let's check the basics. Is the battery fully charged and plugged in correctly? If yes, I'll walk you through checking the power switch.
-                    > How do I make it faster? : You can upgrade to a 3S LiPo battery for more speed. I can show you the exact battery and charger you'll need. Want me to add those to your cart?
-                    > The front bumper broke. What now? : You'll need the replacement bumper set (#6735). I can link you to the part and guide you through replacing it—it's a simple 5-minute job.
-                    > I need something safe for my 9-year-old. : The Stampede 2WD is durable and has training mode to reduce speed. That way, your child can learn safely. Want me to show you how training mode works?
-                    > The truck won't connect to the remote. : That's common. Let's re-bind the transmitter. I'll give you the simple button sequence—this takes less than a minute.
-                    > Can I make it look cooler for my kid? : Absolutely! You can add LED lights or a custom body. Want me to recommend the most popular upgrade kits for kids?
-                    > The wheels came loose. : No problem. You'll just need to tighten the wheel nuts with the included wrench. If the nuts are missing, I can get you a replacement set.
-                    > Which truck is best for racing? : The Slash 4x4 Ultimate is race-ready with upgraded shocks and telemetry. Do you race on carpet, clay, or outdoor tracks? I can help tune it for your track type.
-                    > My truck is oversteering in corners. : Try thickening the rear diff fluid or softening the front shocks. Want me to pull up a pro racer's setup sheet for the Slash?
-                    > What tires should I run on clay? : Soft compound bar tires like Pro-Line Suburbs work great on clay. Want me to show you the best tire and wheel combos for your Slash?
-                    > I bent my driveshaft. : You can replace it with Traxxas #6851X, or upgrade to a heavy-duty steel version for racing durability. Which one would you prefer?
-                    > What's the coolest truck for jumps? : The Maxx 4S is perfect for insane jumps and stunts. It's nearly unbreakable. Want to see some crazy videos of it in action?
-                    > Why won't it go super fast anymore? : It might be in training mode. I can show you how to turn that off so you can unleash full speed. Want me to walk you through it?
-                    > Can I make it do wheelies all the time? : Yes! Add a wheelie bar—it bolts right on. Want me to add it to your cart?
-                    > I broke a suspension arm. : You'll need part #8632. It's an easy swap—do you want a quick guide to install it yourself?
-                    > I want something realistic, not just fast. : The TRX-4 Bronco is a scale crawler with incredible details. You can add roof racks, lights, and even a working winch. Want me to build you a starter kit?
-                    > My winch isn't working. : Let's check if the controller is bound and the wiring is secure. I can also help you test it with a multimeter if you have one.
-                    > How do I add LED headlights? : You can get the official LED light kit for the Bronco, or I can show you a DIY wiring method. Which one do you prefer?
-                    > I scratched my body. Can I replace it? : Yes! The Bronco body set #8010X comes pre-painted or clear for custom paint. Want me to help you pick a color scheme?
-                    
                 Product Database:
                 <context>
                 {context}
