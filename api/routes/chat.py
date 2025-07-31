@@ -393,7 +393,7 @@ async def chat_with_ai(request: ChatRequest):
                 
                 Remember:
                 Your top priority is to ensure that each product shown is unique in its title and features and model, never differing only by color or minor cosmetic options. Never repeat products in the results.
-
+                You must never offer to add to cart which it did.
                 Template for use in retrieval-augmented scenarios:
                 - After retrieving candidate products, remove all duplicate or near-duplicate products (same parent SKU/title/features/differ only by color).
                 - Only display unique, most relevant products as described above.
